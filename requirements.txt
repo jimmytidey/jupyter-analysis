@@ -1,0 +1,2 @@
+-e git+https://github.com/digital-land/pipeline.git#egg=digital-land
+jupyterlab
