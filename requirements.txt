@@ -1,2 +1,6 @@
 -e git+https://github.com/digital-land/pipeline.git#egg=digital-land
 jupyterlab
+geopandas
+matplotlib
+folium
+mapclassify
