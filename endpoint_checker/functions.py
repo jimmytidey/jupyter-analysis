@@ -9,6 +9,7 @@ import sys
 import logging
 
 from lookup_functions import save_resource_unidentified_lookups,standardise_lookups,add_unnassigned_to_lookups
+from column_functions import add_extra_column_mappings,add_extra_concats
 
 from digital_land.register import hash_value,Item
 from digital_land.update import add_endpoint,add_source
@@ -122,6 +123,7 @@ def get_workflow_data(data_dir,collection,dataset):
         'patch.csv',
         'skip.csv',
         'transform.csv',
+        'combine.csv'
     ]
     for pipeline_csv in pipeline_csvs:
         try:
@@ -208,7 +210,7 @@ def assign_entries(resource_path,dataset,organisation,pipeline_dir,specification
     assuming that the endpoint is new (strictly it doesn't have to be) then we neeed to assign new eentity numbers
     """
     lookup_path = os.path.join(pipeline_dir,'lookup.csv')
-    save_resource_unidentified_lookups(resource_path,dataset,organisation,pipeline_dir = pipeline_dir,specification_dir=specification_dir)
+    save_resource_unidentified_lookups(resource_path,dataset,[organisation],pipeline_dir = pipeline_dir,specification_dir=specification_dir)
     unassigned_entries = []
     with open('../data/endpoint_checker/var/cache/unassigned-entries.csv') as f:
         dictreader = csv.DictReader(f)
@@ -257,7 +259,7 @@ def new_dataset_create(
 
     package.add_counts()
 
-def run_endpoint_workflow(collection_name,dataset,organisation,endpoint_url,plugin,data_dir):
+def run_endpoint_workflow(collection_name,dataset,organisation,endpoint_url,plugin,data_dir,additional_col_mappings,additional_concats):
     # create the relevant structure and download the files
     get_workflow_data(data_dir,collection_name,dataset)
     collection_dir = os.path.join(data_dir,"collection")
@@ -290,6 +292,16 @@ def run_endpoint_workflow(collection_name,dataset,organisation,endpoint_url,plug
         resource_path = os.path.join(collection_dir,'resource',resource['resource'])
         assign_entries(resource_path=resource_path,dataset=dataset,organisation=organisation,pipeline_dir=os.path.join(data_dir,'pipeline'),specification_dir=os.path.join(data_dir,'specification'))
     
+    # also add in any additional column mappings, it's useful for testing
+    if additional_col_mappings is not None:
+        column_path = os.path.join(data_dir,'pipeline','column.csv')
+        add_extra_column_mappings(column_path,additional_col_mappings)
+    
+    if additional_concats is not None:
+        concat_path = os.path.join(data_dir,'pipeline','concat.csv')
+        add_extra_concats(concat_path,additional_concats)
+
+
     # define variables for Pipeline
     pipeline_dir = os.path.join(data_dir,'pipeline')
     pipeline = Pipeline(pipeline_dir,dataset)
@@ -313,7 +325,7 @@ def run_endpoint_workflow(collection_name,dataset,organisation,endpoint_url,plug
             dataset_resource_dir=os.path.join(data_dir,'var','dataset-resource',dataset),
             organisation_path=os.path.join(data_dir,'var','cache','organisation.csv'),
             save_harmonised=False,
-            endpoints=resource['endpoints'],
+            endpoints=[resource['endpoints']],
             organisations=[organisation],
             entry_date=resource['start-date'],
             custom_temp_dir=os.path.join(data_dir,'var','cache'),
