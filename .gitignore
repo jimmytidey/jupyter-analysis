@@ -133,3 +133,5 @@ src/
 
 # ignore data folder
 data/
+
+*.DS_Store
