@@ -14,8 +14,8 @@ if __name__ == "__main__":
   app.run(host='0.0.0.0', port=8000, debug=True)
 
 
-def df_to_response(df, app): 
-    json_data = df.to_json(orient='records')
+def df_to_response(process_state, df, app): 
+    dict = df.to_dict(orient='records')
     response = app.response_class(
         response=json_data,
         status=200,
