@@ -212,7 +212,7 @@ def assign_entries(resource_path,dataset,organisation,pipeline_dir,specification
     lookup_path = os.path.join(pipeline_dir,'lookup.csv')
     save_resource_unidentified_lookups(resource_path,dataset,[organisation],pipeline_dir = pipeline_dir,specification_dir=specification_dir)
     unassigned_entries = []
-    with open('../data/endpoint_checker/var/cache/unassigned-entries.csv') as f:
+    with open('unassigned-entries.csv') as f:
         dictreader = csv.DictReader(f)
         for row in dictreader:
             unassigned_entries.append(row)

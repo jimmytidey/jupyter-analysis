@@ -188,7 +188,7 @@ def save_resource_unidentified_lookups(input_path,dataset,organisations, pipelin
             ),
             EntityPrefixPhase(dataset=dataset),
             UnassignedEntries(lookups=flookups),
-            SavePhase(path=Path('../data/endpoint_checker/var/cache/unassigned-entries.csv'),fieldnames=['prefix','organisation','reference'])
+            SavePhase(path=Path('unassigned-entries.csv'),fieldnames=['prefix','organisation','reference'])
     )
 
 def standardise_lookups(lookups_path):
