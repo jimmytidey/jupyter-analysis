@@ -284,8 +284,8 @@ def run_endpoint_workflow(collection_name,dataset,organisation,endpoint_url,plug
 
     # stop if no resources collected
     if len(resources) == 0:
-        print("No resources collected view collection logs for more info")
-        return
+        print("*No resources collected view collection logs for more info*")
+        return "No resources collected view collection logs for more info"
     
     # retrieve unnassigned entities and assign
     for resource in resources:
