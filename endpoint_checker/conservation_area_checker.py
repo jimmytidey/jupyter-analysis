@@ -17,7 +17,7 @@ def conservation_area_checker(url):
     additional_concats=None
     data_dir = 'data/endpoint_checker_' + str(int(time.time()*10000)) 
 
-    run_endpoint_workflow(
+    workflow_state = run_endpoint_workflow(
         collection_name,
         dataset,
         organisation,
@@ -28,6 +28,12 @@ def conservation_area_checker(url):
         additional_concats=additional_concats
     )
 
+    if(workflow_state):
+        checker_state = 'Data checker failed - ensure you have a valid CSV, GeoJSON, GML, or Geopackage file'
+        ret = {'checker_state': checker_state, 'issues': []}
+        shutil.rmtree(data_dir)
+        return ret   
+
     collection = Collection(os.path.join(data_dir,'collection'))
     collection.load(directory=os.path.join(data_dir,'collection'))
     logs = collection.log.entries
@@ -35,18 +41,22 @@ def conservation_area_checker(url):
 
     http_status = logs['status'].values[0]
 
-    if(http_status != 200): process_state = "Could not access URL"
+    if(http_status != '200'): 
+        checker_state = "Could not access URL"
+        ret = {'checker_state': checker_state, 'issues': []}
+        shutil.rmtree(data_dir)
+        return ret   
 
     try: 
         dataset_db = DatasetSqlite(os.path.join(data_dir,'dataset',f'{dataset}.sqlite3'))
         results = dataset_db.get_issues()
-        display(results)
-        row_count = results.shape[0]
+
+        row_count = results['line_number'].drop_duplicates().size
 
         if(row_count == 0):
-            process_state = "No rows were processed, check you have created a valid file."
+            checker_state = "No rows were processed, check you have created a valid file."
         else:
-            process_state = f"{row_count} rows have been processed"
+            checker_state = f"{row_count} rows have been processed"
 
         issues = results.loc[(results.issue_type != 'default-value')]
 
@@ -54,7 +64,7 @@ def conservation_area_checker(url):
         issues = pd.DataFrame()
 
    
-    ret = {'process_state': process_state, 'issues': issues.to_dict('records')}
+    ret = {'checker_state': checker_state, 'issues': issues.to_dict('records')}
     
     shutil.rmtree(data_dir)
 
