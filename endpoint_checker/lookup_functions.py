@@ -139,7 +139,7 @@ def save_resource_unidentified_lookups(input_path,dataset,organisations, pipelin
     schema = specification.pipeline[pipeline.name]["schema"]
 
     # organisation phase
-    organisation = Organisation('../data/endpoint_checker/var/cache/organisation.csv', Path(pipeline.path))
+    organisation = Organisation('organisation.csv', Path(pipeline.path))
 
     # print lookups phase
     flookups = pipeline.lookups()
